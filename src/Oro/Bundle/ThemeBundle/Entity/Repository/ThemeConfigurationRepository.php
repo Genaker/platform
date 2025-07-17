@@ -12,10 +12,16 @@ use Oro\Bundle\ThemeBundle\Entity\ThemeConfiguration;
  */
 class ThemeConfigurationRepository extends EntityRepository
 {
+    private array $currentTheme = [];
+
     public function getThemeByThemeConfigurationId(?int $id): ?string
     {
         if ($id === null) {
             return null;
+        }
+
+        if (isset($this->currentTheme[$id])) {
+            return $this->currentTheme[$id];
         }
 
         $qb = $this->createQueryBuilder('tc');
@@ -25,6 +31,7 @@ class ThemeConfigurationRepository extends EntityRepository
             )
             ->setParameter('id', $id, Types::INTEGER);
 
-        return $qb->getQuery()->getOneOrNullResult(AbstractQuery::HYDRATE_SINGLE_SCALAR);
+        $this->currentTheme[$id] = $qb->getQuery()->getOneOrNullResult(AbstractQuery::HYDRATE_SINGLE_SCALAR);
+        return $this->currentTheme[$id];
     }
 }
